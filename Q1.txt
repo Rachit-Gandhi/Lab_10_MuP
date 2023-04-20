@@ -1,0 +1,42 @@
+.model tiny
+.stack 100h
+
+.data
+    name db 'John$'
+
+.code
+    org 100h
+
+    ; get the length of the string
+    mov si, 0
+    mov cx, 0
+    mov al, '$'
+    repne scasb
+    not cx
+    dec cx
+
+    ; reverse the string in place
+    mov di, cx
+    mov si, 0
+    mov bx, 0
+    mov cx, di
+    shr cx, 1
+    jz done
+loop1:
+    mov al, name[si]
+    push ax
+    inc si
+    cmp si, di
+    jae loop2
+    jmp loop1
+loop2:
+    pop ax
+    mov name[si-bx-1], al
+    inc bx
+    cmp bx, di
+    jb loop2
+
+done:
+    mov ah, 4ch
+    int 21h
+end
