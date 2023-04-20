@@ -1,0 +1,54 @@
+.model tiny
+.code
+
+org 100h
+
+; Recursive procedure to calculate the factorial of a number
+Factorial PROC uses bx cx dx, n:WORD
+    cmp n, 1   ; If n is 1, return 1
+    je done
+    
+    ; Otherwise, calculate n * (n-1)!
+    dec n
+    push ax
+    call Factorial
+    pop bx
+    mul n
+    
+done:
+    ret
+Factorial ENDP
+
+; Procedure to calculate nPr
+nPr PROC uses bx cx dx
+    push bx     ; Save n
+    call Factorial     ; Calculate n!
+    mov cx, dx  ; Save n!
+    pop bx      ; Restore n
+    sub bx, dx  ; Calculate n - r
+    push bx     ; Save n-r
+    call Factorial     ; Calculate (n-r)!
+    pop bx      ; Restore n-r
+    div bx      ; Calculate n!/(n-r)!
+    ret
+nPr ENDP
+
+start:
+    mov bx, 5   ; n = 5
+    mov dx, 2   ; r = 2
+    call nPr    ; Calculate 5P2
+    ; Result is stored in AX
+    ; Display result
+    mov ah, 02h
+    mov dl, ' '
+    add ax, 30h ; Convert result to ASCII
+    int 21h
+    
+    mov ah, 02h
+    mov dl, 'h'
+    int 21h
+    
+    ; Exit program
+    mov ah, 4Ch
+    int 21h
+end start
